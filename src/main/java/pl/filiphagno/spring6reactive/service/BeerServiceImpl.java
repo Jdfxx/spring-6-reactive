@@ -1,6 +1,7 @@
 package pl.filiphagno.spring6reactive.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import pl.filiphagno.spring6reactive.mapper.BeerMapper;
 import pl.filiphagno.spring6reactive.model.BeerDTO;
@@ -29,5 +30,25 @@ public class BeerServiceImpl implements BeerService {
     @Override
     public Mono<BeerDTO> saveBeer(BeerDTO newBeer) {
        return beerRepository.save(beerMapper.beerDTOToBeer(newBeer)).map(beerMapper::beerToBeerDTO);
+    }
+
+    @Override
+    public Mono<BeerDTO> updateBeer(Integer beerId, BeerDTO newBeer) {
+        return beerRepository.findById(beerId)
+                .map(foundBeer -> {
+                    foundBeer.setBeerName(newBeer.getBeerName());
+                    foundBeer.setBeerStyle(newBeer.getBeerStyle());
+                    foundBeer.setPrice(newBeer.getPrice());
+                    foundBeer.setUpc(newBeer.getUpc());
+                    foundBeer.setQuantityOnHand(newBeer.getQuantityOnHand());
+                    return foundBeer;
+                })
+                .flatMap(beerRepository::save)
+                .map(beerMapper::beerToBeerDTO);
+    }
+
+    @Override
+    public Mono<Void> deleteBeerById(Integer beerId) {
+        return beerRepository.deleteById(beerId);
     }
 }

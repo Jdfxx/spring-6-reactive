@@ -2,6 +2,7 @@ package pl.filiphagno.spring6reactive.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.filiphagno.spring6reactive.model.BeerDTO;
 import pl.filiphagno.spring6reactive.service.BeerService;
@@ -30,7 +31,7 @@ public class BeerController {
     }
 
     @PostMapping(BEER_PATH)
-    Mono<ResponseEntity<String>> getBeerById(@RequestBody BeerDTO newBeer) {
+    Mono<ResponseEntity<String>> getBeerById(@Validated @RequestBody BeerDTO newBeer) {
 
         return beerService.saveBeer(newBeer).map(
                 beerDTO ->
@@ -38,6 +39,19 @@ public class BeerController {
                                 BEER_PATH + "/" + beerDTO.getId())).build()
         );
 
+    }
+
+    @PutMapping(BEER_PATH_ID)
+    Mono<ResponseEntity<String>> updateBeer(
+            @PathVariable("beerId") Integer beerId,
+            @Validated @RequestBody BeerDTO newBeer) {
+        beerService.updateBeer(beerId, newBeer).subscribe();
+        return Mono.just(ResponseEntity.ok().build());
+    }
+
+    @DeleteMapping (BEER_PATH_ID)
+    Mono<ResponseEntity<String>> deleteBeerById(@PathVariable("beerId") Integer beerId) {
+        return beerService.deleteBeerById(beerId).then(Mono.fromCallable(() -> ResponseEntity.ok().build()));
     }
 
 }
