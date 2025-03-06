@@ -15,7 +15,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class BeerController {
 
-    public static final String BEER_PATH = "api/v2/beer";
+    public static final String BEER_PATH = "/api/v2/beer";
     public static final String BEER_PATH_ID = BEER_PATH + "/{beerId}";
 
     private final BeerService beerService;
@@ -51,7 +51,6 @@ public class BeerController {
 
     @DeleteMapping (BEER_PATH_ID)
     Mono<ResponseEntity<String>> deleteBeerById(@PathVariable("beerId") Integer beerId) {
-        return beerService.deleteBeerById(beerId).then(Mono.fromCallable(() -> ResponseEntity.ok().build()));
+        return beerService.deleteBeerById(beerId).thenReturn(ResponseEntity.noContent().build());
     }
-
 }
